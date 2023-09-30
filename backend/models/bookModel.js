@@ -27,6 +27,7 @@ const bookSchema = new mongoose.Schema({
   },
   lastGiver:String,
   lastAcceptor:String,
+  category:String,
   lastIssuedOn:{
     type:Date,
   }
