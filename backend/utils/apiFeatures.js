@@ -34,9 +34,11 @@ class ApiFeatures {
     }
     else if(this.queryStr.category){
       keyword = {
-        $regex: this.queryStr.category,
-        $options: "i",
-      };
+            category: {
+              $regex: this.queryStr.category,
+              $options: "i", // makes it case insensitive
+            },
+          };
     }
     this.query = this.query.find({ ...keyword });
     return this;
