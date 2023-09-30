@@ -32,6 +32,11 @@ class ApiFeatures {
         phone: this.queryStr.phone,
       };
     }
+    else if(this.queryStr.category){
+      keyword = {
+        category: this.queryStr.category,
+      };
+    }
     this.query = this.query.find({ ...keyword });
     return this;
   }
