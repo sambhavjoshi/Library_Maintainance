@@ -55,7 +55,7 @@ exports.createSchoolStudent = catchAsyncErrors(async (req, res, next) => {
     });
   });
   
-  exports.updateSchoolStudent = catchAsyncErrors(async (req, res, next) => {
+ exports.updateSchoolStudent = catchAsyncErrors(async (req, res, next) => {
     const { password } = req.body;
     const admin = await Admin.findById(req.user.id).select("+password");
     const isPasswordMatched = await admin.comparePassword(password);
@@ -68,9 +68,17 @@ exports.createSchoolStudent = catchAsyncErrors(async (req, res, next) => {
     if (schoolStudent === null) {
       return next(new ErrorHandler("student not found", 404));
     }
+
+    const feearr = await Fee.findOne({
+      hostel: req.body.hostel,
+      stream: req.body.stream,
+      grade: req.body.grade
+  })
+
     req.body.name = req.body.name ? req.body.name.toUpperCase() : undefined;
     req.body.sonOf.name = req.body.sonOf.name ? req.body.sonOf.name.toUpperCase() : undefined;
     req.body.stream = req.body.stream ? req.body.stream.toUpperCase() : undefined;
+    req.body.feeLeft = feearr.amount - schoolStudent.feePaid - schoolStudent.discounted;
     await SchoolStudent.findByIdAndUpdate(req.params.id,req.body)
   
     res.status(200).json({
