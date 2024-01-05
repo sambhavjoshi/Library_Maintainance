@@ -55,7 +55,7 @@ exports.createSchoolStudent = catchAsyncErrors(async (req, res, next) => {
     });
   });
   
- exports.updateSchoolStudent = catchAsyncErrors(async (req, res, next) => {
+  exports.updateSchoolStudent = catchAsyncErrors(async (req, res, next) => {
     const { password } = req.body;
     const admin = await Admin.findById(req.user.id).select("+password");
     const isPasswordMatched = await admin.comparePassword(password);
@@ -64,8 +64,8 @@ exports.createSchoolStudent = catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler("Password is Incorrect", 400));
     }
   
-    const schoolStudent = await SchoolStudent.findById(req.params.id);
-    if (schoolStudent === null) {
+    const schoolStu = await SchoolStudent.findById(req.params.id);
+    if (schoolStu === null) {
       return next(new ErrorHandler("student not found", 404));
     }
 
@@ -74,12 +74,25 @@ exports.createSchoolStudent = catchAsyncErrors(async (req, res, next) => {
       stream: req.body.stream,
       grade: req.body.grade
   })
+    
+    const fee2 = await Fee.findOne({
+      hostel: schoolStu.hostel,
+      stream: schoolStu.stream,
+      grade: schoolStu.grade
+    })
 
+    const remAmount = feearr.amount - fee2.amount ; 
     req.body.name = req.body.name ? req.body.name.toUpperCase() : undefined;
     req.body.sonOf.name = req.body.sonOf.name ? req.body.sonOf.name.toUpperCase() : undefined;
     req.body.stream = req.body.stream ? req.body.stream.toUpperCase() : undefined;
-    req.body.feeLeft = feearr.amount - schoolStudent.feePaid - schoolStudent.discounted;
-    await SchoolStudent.findByIdAndUpdate(req.params.id,req.body)
+    if(req.body.grade !== schoolStu.grade ) {
+      req.body.feeLeft = feearr.amount + schoolStu.feeLeft ;
+    }
+    else{
+      req.body.feeLeft = schoolStu.feeLeft + remAmount ; 
+    }
+    await SchoolStudent.findByIdAndUpdate(req.params.id,req.body);
+    const schoolStudent = await SchoolStudent.findById(req.params.id);
   
     res.status(200).json({
       success: true,
