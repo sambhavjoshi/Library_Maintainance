@@ -63,7 +63,7 @@ exports.createCollegeStudent = catchAsyncErrors(async (req, res, next) => {
     });
   });
   
- exports.updateCollegeStudent = catchAsyncErrors(async (req, res, next) => {
+  exports.updateCollegeStudent = catchAsyncErrors(async (req, res, next) => {
     const { password } = req.body;
     const admin = await Admin.findById(req.user.id).select("+password");
     const isPasswordMatched = await admin.comparePassword(password);
@@ -83,13 +83,27 @@ exports.createCollegeStudent = catchAsyncErrors(async (req, res, next) => {
       degree: req.body.degree,
       semester: req.body.semester
   })
+    
+    const fee2 = await Fee.findOne({
+      hostel: collegeStu.hostel,
+      stream: collegeStu.stream,
+      degree: collegeStu.degree,
+      semester: collegeStu.semester
+  })
+
+  const remAmount = feearr.amount - fee2.amount ;
 
     req.body.name = req.body.name ? req.body.name.toUpperCase() : undefined;
     req.body.sonOf.name = req.body.sonOf.name ? req.body.sonOf.name.toUpperCase() : undefined;
     req.body.stream = req.body.stream ? req.body.stream.toUpperCase() : undefined;
     req.body.degree = req.body.degree ? req.body.degree.toUpperCase() : undefined;
-    req.body.feeLeft = feearr.amount - collegeStu.discounted - collegeStu.feePaid ; 
-    
+    if(req.body.semester !== collegeStu.semester ) {
+      req.body.feeLeft = feearr.amount + collegeStu.feeLeft ; 
+    }
+    else{
+      req.body.feeLeft = collegeStu.feeLeft + remAmount ;
+    }
+
     await CollegeStudent.findByIdAndUpdate(req.params.id,req.body)
     const collegeStudent = await CollegeStudent.findById(req.params.id);
     res.status(200).json({
