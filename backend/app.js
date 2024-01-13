@@ -30,7 +30,8 @@ const books = require("./routes/booksRoute.js");
 const admin = require("./routes/adminRoute.js");
 const fees  = require("./routes/feeRoute.js");
 const schoolStudents = require("./routes/schoolStudentRoute.js");
-const collegeStudents = require("./routes/collegeStudentRoute.js"); 
+const collegeStudents = require("./routes/collegeStudentRoute.js");
+const inventory = require("./routes/inventoryRoute.js");
 
 app.use("/api/v1", users);
 app.use("/api/v1", books);
@@ -38,6 +39,7 @@ app.use("/api/v1", admin);
 app.use("/api/v1", fees);
 app.use("/api/v1",schoolStudents);
 app.use("/api/v1",collegeStudents);
+app.use("/api/v1", inventory);
 
 app.use(express.static(path.join(__dirname, "../frontend/build")));
 
