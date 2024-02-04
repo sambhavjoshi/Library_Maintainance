@@ -48,6 +48,21 @@ class ApiFeatures {
         degree: this.queryStr.degree.toUpperCase(),
       };
     }
+    else if(this.queryStr.qualification){
+      keyword = {
+        qualification: this.queryStr.qualification.toLowerCase(),
+      };
+    }
+    else if(this.queryStr.designation){
+      keyword = {
+        designation: this.queryStr.designation.toUpperCase(),
+      };
+    }
+    else if(this.queryStr.subject){
+      keyword = {
+        subject: this.queryStr.subject.toUpperCase(),
+      };
+    }
     else if(this.queryStr.stream){
       keyword = {
         stream: {
