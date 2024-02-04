@@ -15,7 +15,6 @@ const itemSchema = new mongoose.Schema({
       stock: Number,
       date: {
         type: Date,
-        default: Date.now(),
       },
       cost: Number,
       approvedBy: String,
