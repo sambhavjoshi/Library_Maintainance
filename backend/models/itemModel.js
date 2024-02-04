@@ -8,6 +8,9 @@ const itemSchema = new mongoose.Schema({
     type:Number,
     default:0,
   },
+  dateOfPurchase:{
+    type:String,
+  },
   lab:String,
   log: [
     {
@@ -15,6 +18,7 @@ const itemSchema = new mongoose.Schema({
       stock: Number,
       date: {
         type: Date,
+        default:Date.now(),
       },
       cost: Number,
       approvedBy: String,
