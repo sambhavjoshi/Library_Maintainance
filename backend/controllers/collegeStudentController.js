@@ -116,7 +116,7 @@ exports.createCollegeStudent = catchAsyncErrors(async (req, res, next) => {
     }
 
     const feearr = await Fee.findOne({
-      hostel: req.body.hostel,
+      hostel: req.body.hostel ? req.body.hostel : false,
       stream: collegeStu.stream,
       degree: collegeStu.degree,
       semester: req.body.semester
