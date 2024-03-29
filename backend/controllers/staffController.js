@@ -1,5 +1,6 @@
 const Admin = require("../models/adminModel");
 const Staff = require("../models/staffModel");
+const Misc = require("../models/miscModel");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ApiFeatures = require("../utils/apiFeatures");
@@ -19,6 +20,7 @@ exports.createStaff = catchAsyncErrors(async (req, res, next) => {
     req.body.designation = req.body.designation ? req.body.designation.toUpperCase() : undefined;
     req.body.subject = req.body.subject ? req.body.subject.toUpperCase() : undefined;
     req.body.qualification = req.body.qualification ? req.body.qualification.toLowerCase() : undefined;
+    req.body.lastMonthPaid = req.body.dateOfJoining;
     
     if(req.body.images != null) {
     let images = [];
@@ -132,12 +134,62 @@ exports.updateStaff = catchAsyncErrors(async(req,res,next) => {
        
        if(date1 > date2) {
         req.body.lastMonthPaid = req.body.salaryClearedTill;
+        req.body.deductionLeaves=0;
        }
+  }
+  const leaves = staf.leavesUsed;
+  if(req.body.leavesUsed && req.body.leavesUsed > leaves){
+    if(req.body.leavesUsed > staf.leavesAllowed ) req.body.deductionLeaves = staf.deductionLeaves + 1;
   }
   const staff = await Staff.findByIdAndUpdate(req.params.id,req.body);
   
   res.status(200).json({
     success:true,
     staff,
+  })
+})
+
+
+exports.refreshLeaves = catchAsyncErrors(async(req,res,next) => {
+  const { password } = req.body;
+  const admin = await Admin.findById(req.user.id).select("+password");
+  const isPasswordMatched = await admin.comparePassword(password);
+
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("Password is Incorrect", 400));
+  }
+  const staffs = await Staff.find();
+
+  staffs.forEach(async(staff) => {
+    const updatedStaff = await Staff.findByIdAndUpdate(staff._id,{
+      leavesUsed : 0,
+    },{
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    })
+  })
+
+  const current = await Misc.findOne({name:"sambhav"});
+  await Misc.findByIdAndUpdate(current._id,{ongoingYear:current.ongoingYear+1},{
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  },)
+
+  
+  res.status(200).json({
+    success:true,
+    message:"Staffs updated successfully"
+  })
+})
+
+
+exports.getCurrentYear = catchAsyncErrors(async(req,res,next) => {
+    const current = await Misc.findOne({name:"sambhav"});
+  
+  res.status(200).json({
+    success:true,
+    currentYear:current.ongoingYear,
   })
 })
