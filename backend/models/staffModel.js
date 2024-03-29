@@ -27,6 +27,14 @@ const staffSchema = new mongoose.Schema({
   experience:Number,
   designation:String,
   subject:String,
+  deductionLeaves:{
+    type:Number,
+    default:0,
+  },
+  salaryDeduction:{
+    type:Number,
+    default:0,
+  },
   documents:[
     {
     public_id:{
