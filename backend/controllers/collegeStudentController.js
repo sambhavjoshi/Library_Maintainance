@@ -146,7 +146,7 @@ exports.createCollegeStudent = catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler("student not found", 404));
     }
      
-    if(req.body.amount <= 0) return next(new ErrorHandler("Make some payment", 400));
+    if(req.body.amount <= 0 || req.body.amount > 1000000 ) return next(new ErrorHandler("Enter a valid payment amount", 400));
 
     const temp = {
         ...req.body,
