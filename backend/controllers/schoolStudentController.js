@@ -129,7 +129,7 @@ exports.payFeeSchool = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("student not found", 404));
   }
   if (req.body.amount <= 0 || req.body.amount > 1000000)
-    return next(new ErrorHandler("Make a valid payment amount", 400));
+    return next(new ErrorHandler("Payment amount is invalid", 400));
 
   const temp = {
     ...req.body,
