@@ -6,6 +6,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ApiFeatures = require("../utils/apiFeatures");
 const path = require("path");
 const XLSX = require("xlsx");
+const fs = require('fs');
 
 exports.createSchoolStudent = catchAsyncErrors(async (req, res, next) => {
   const schoolStudent = await createNewSchoolStudentEntry(req,res,next);
@@ -221,6 +222,15 @@ exports.createSchoolStudentsFromExcelFile = catchAsyncErrors(
           couldNotCreate.push(student);
         }
       }
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error('Failed to delete the file:', err);
+        } else {
+          console.log('File deleted successfully');
+        }
+      });
+
       } catch (error) {
         return next(new ErrorHandler(error, 400));
       }
@@ -236,6 +246,8 @@ exports.createSchoolStudentsFromExcelFile = catchAsyncErrors(
 
 async function createNewSchoolStudentEntry(req, res, next) {
   // console.log(req.body);
+  let existingStudent = await SchoolStudent.findOne({rollNo:req.body.rollNo});
+  if(existingStudent && existingStudent != null) return existingStudent ;
   req.body.name = req.body.name ? req.body.name.toUpperCase() : undefined;
   req.body.sonOf.name = req.body.sonOf.name
     ? req.body.sonOf.name.toUpperCase()
