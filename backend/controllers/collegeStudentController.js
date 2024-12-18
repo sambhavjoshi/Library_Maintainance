@@ -6,6 +6,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ApiFeatures = require("../utils/apiFeatures");
 const path = require("path");
 const XLSX = require("xlsx");
+const fs = require('fs');
 
 exports.createCollegeStudent = catchAsyncErrors(async (req, res, next) => {
   const collegeStudent = await createNewCollegeStudentEntry(req,res,next);
@@ -129,7 +130,7 @@ exports.payFeeCollege = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("student not found", 404));
   }
 
-  if (req.body.amount <= 0 || req.body.amount > 1000000)
+  if (req.body.amount <= 0 || req.body.amount > 1000000 )
     return next(new ErrorHandler("Payment amount is invalid", 400));
 
   const temp = {
@@ -214,13 +215,25 @@ exports.createCollegeStudentsFromExcelFile = catchAsyncErrors(
             phone: student.phone,
             rollNo: student.rollNo,
           };
-          console.log(req.body);
+          console.log("creating student with rollNo",req.body.rollNo);
           await createNewCollegeStudentEntry(req, res, next);
+          console.log("created student with rollNO",req.body.rollNo);
         } catch (error) {
           // Handle errors for individual students (e.g., log them, continue processing others)
           couldNotCreate.push(student);
         }
       }
+
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error('Failed to delete the file:', err);
+        } else {
+          console.log('File deleted successfully');
+        }
+      });
+
+
       } catch (error) {
         return next(new ErrorHandler(error, 400));
       }
@@ -235,7 +248,10 @@ exports.createCollegeStudentsFromExcelFile = catchAsyncErrors(
 
 
 async function createNewCollegeStudentEntry(req, res, next) {
- // console.log(req.body);
+  let existingStudent = await CollegeStudent.findOne({rollNo : req.body.rollNo});
+  if(existingStudent && existingStudent != null) {
+    return existingStudent;
+  } 
   req.body.name = req.body.name ? req.body.name.toUpperCase() : undefined;
   req.body.sonOf.name = req.body.sonOf.name
     ? req.body.sonOf.name.toUpperCase()
@@ -261,5 +277,6 @@ async function createNewCollegeStudentEntry(req, res, next) {
   req.body.books = [];
 
   const collegeStudent = await CollegeStudent.create(req.body);
+  console.log(collegeStudent);
   return collegeStudent;
 }
