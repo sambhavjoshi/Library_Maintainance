@@ -116,6 +116,32 @@ exports.updateGrade = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+
+
+exports.studentPassed = catchAsyncErrors(async (req, res, next) => {
+  const { password } = req.body;
+  const admin = await Admin.findById(req.user.id).select("+password");
+  const isPasswordMatched = await admin.comparePassword(password);
+
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("Password is Incorrect", 400));
+  }
+
+  const schoolStu = await SchoolStudent.findById(req.params.id);
+  if (schoolStu === null) {
+    return next(new ErrorHandler("student not found", 404));
+  }
+
+  await SchoolStudent.findByIdAndUpdate(req.params.id, req.body);
+  const schoolStudent = await SchoolStudent.findById(req.params.id);
+  res.status(200).json({
+    success: true,
+    schoolStudent,
+  });
+});
+
+
+
 exports.payFeeSchool = catchAsyncErrors(async (req, res, next) => {
   const { password } = req.body;
   const admin = await Admin.findById(req.user.id).select("+password");
