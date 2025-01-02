@@ -1,6 +1,6 @@
 const express = require("express");
 const { isAuthUser} = require("../middleware/auth");
-const { createSchoolStudent, getAllSchoolStudents, payFeeSchool, getschoolStudent, updateSchoolStudent, deleteSchoolStudent, updateGrade, createSchoolStudentsFromExcelFile } = require("../controllers/schoolStudentController");
+const { createSchoolStudent, getAllSchoolStudents, payFeeSchool, getschoolStudent, updateSchoolStudent, deleteSchoolStudent, updateGrade, createSchoolStudentsFromExcelFile, studentPassed } = require("../controllers/schoolStudentController");
 
 
 const router = express.Router();
@@ -10,6 +10,7 @@ router.route("/schoolStudent/create/file").post(isAuthUser, createSchoolStudents
 router.route("/schoolStudents").get(isAuthUser, getAllSchoolStudents);
 router.route("/schoolStudent/payfee/:id").put(isAuthUser, payFeeSchool);  
 router.route("/schoolStudent/updateGrade/:id").put(isAuthUser,updateGrade);
+router.route("/schoolStudent/studentPassed/:id").put(isAuthUser,studentPassed);
 router
   .route("/schoolStudent/:id")
   .get(isAuthUser, getschoolStudent)
