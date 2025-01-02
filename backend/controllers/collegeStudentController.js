@@ -116,6 +116,29 @@ exports.updateSemester = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+exports.studentPassed = catchAsyncErrors(async (req, res, next) => {
+  const { password } = req.body;
+  const admin = await Admin.findById(req.user.id).select("+password");
+  const isPasswordMatched = await admin.comparePassword(password);
+
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("Password is Incorrect", 400));
+  }
+
+  const collegeStu = await CollegeStudent.findById(req.params.id);
+
+  if (collegeStu === null) {
+    return next(new ErrorHandler("student not found", 404));
+  }
+
+  await CollegeStudent.findByIdAndUpdate(req.params.id, req.body);
+  const collegeStudent = await CollegeStudent.findById(req.params.id);
+  res.status(200).json({
+    success: true,
+    collegeStudent,
+  });
+});
+
 exports.payFeeCollege = catchAsyncErrors(async (req, res, next) => {
   const { password } = req.body;
   const admin = await Admin.findById(req.user.id).select("+password");
